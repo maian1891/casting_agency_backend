@@ -26,7 +26,7 @@ This will install all of the required packages we selected within the `requireme
 
 - [Flask](http://flask.pocoo.org/) is a lightweight backend microservices framework. Flask is required to handle requests and responses.
 
-- [SQLAlchemy](https://www.sqlalchemy.org/) and [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) are libraries to handle the lightweight sqlite database. Since we want you to focus on auth, we handle the heavy lift for you in `./src/database/models.py`. We recommend skimming this code first so you know how to interface with the Drink model.
+- [SQLAlchemy](https://www.sqlalchemy.org/) and [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) are libraries to handle the lightweight sqlite database. Since we want you to focus on auth, we handle the heavy lift for you in `./src/models/models.py`.
 
 - [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
 
@@ -35,18 +35,11 @@ This will install all of the required packages we selected within the `requireme
 From within the `./src` directory first ensure you are working using your created virtual environment.
 
 Each time you open a new terminal session, run:
-
-```bash
-export FLASK_APP=api.py;
-```
-
 To run the server, execute:
 
 ```bash
-flask run --reload
+gunicorn app:app --bind localhost:5000
 ```
-
-The `--reload` flag will detect file changes and restart the server automatically.
 
 ## Tasks
 
@@ -75,23 +68,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
    - Register 2 users - assign the Barista role to one and Manager role to the other.
    - Sign into each account and make note of the JWT.
    - Import the postman collection `./starter_code/backend/udacity-fsnd-udaspicelatte.postman_collection.json`
-   - Right-clicking the collection folder for barista and manager, navigate to the authorization tab, and including the JWT in the token field (you should have noted these JWTs).
-   - Run the collection and correct any errors.
-   - Export the collection overwriting the one we've included so that we have your proper JWTs during review!
 
 ### Implement The Server
 
-There are `@TODO` comments throughout the `./backend/src`. We recommend tackling the files in order and from top to bottom:
-
-1. `./src/auth/auth.py`
-2. `./src/api.py`
-
 ### Random notes
-
-Useful conda commands:
-
-```bash
-conda create --name coffee-shop-3-8 python=3.8
-conda activate coffee-shop-3-8
-conda deactivate
-```
