@@ -5,6 +5,8 @@ from sqlalchemy import Column, Date, Integer, String
 
 database_path = os.environ['DATABASE_PATH']
 db = SQLAlchemy()
+migrate = Migrate()
+
 '''
 setup_db(app)
     binds a flask application and a SQLAlchemy service
@@ -16,6 +18,7 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
+    migrate.init_app(app, db)
     
     with app.app_context():
         db.create_all()

@@ -4,7 +4,7 @@ import traceback
 from flask_cors import CORS
 
 from auth.auth import AuthError, requires_auth
-from models.models import Actor, Movie, setup_db
+from databases.models import Actor, Movie, setup_db
 
 def create_app(db_uri="", test_config=None):
     app = Flask(__name__)
@@ -89,6 +89,9 @@ def register_retrieve_actors_routes(app):
         print('Retrieving')
         try:
             actor = Actor.query.filter_by(id=id).one_or_none()
+
+            if actor is None:
+                abort(404)
 
             return jsonify({
                 'success': True,
@@ -265,6 +268,10 @@ def register_movies_routes(app):
     def retrieve_movie_detail(payload, id):
         try:
             movie = Movie.query.filter_by(id=id).one_or_none()
+            
+            if movie is None:
+                abort(404)
+                
             return jsonify({
                 'success': True,
                 'data': movie.long(),

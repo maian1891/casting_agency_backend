@@ -38,10 +38,40 @@ Each time you open a new terminal session, run:
 To run the server, execute:
 
 ```bash
-gunicorn app:app --bind localhost:5000
+gunicorn run:app
 ```
 
 ## Tasks
+
+### Create a postgresql database connection
+
+[Connect to a PostgreSQL database server](https://www.javatpoint.com/connect-to-a-postgresql-database-server)
+
+### Create .env file
+
+#### Create Environment Variables in Windows
+
+```bash
+export AUTH0_DOMAIN=
+export ALGORITHMS=
+export API_AUDIENCE=
+export DATABASE_PATH=
+export ASSISTANT_TOKEN=
+export DIRECTOR_TOKEN=
+export PRODUCER_TOKEN=
+```
+
+#### Create Environment Variables in MacOS
+
+```bash
+export AUTH0_DOMAIN=
+export ALGORITHMS=
+export API_AUDIENCE=
+export DATABASE_PATH=
+export ASSISTANT_TOKEN=
+export DIRECTOR_TOKEN=
+export PRODUCER_TOKEN=
+```
 
 ### Setup Auth0
 
@@ -53,22 +83,67 @@ gunicorn app:app --bind localhost:5000
      - Enable RBAC
      - Enable Add Permissions in the Access Token
 5. Create new API permissions:
-   - `get:drinks`
-   - `get:drinks-detail`
-   - `post:drinks`
-   - `patch:drinks`
-   - `delete:drinks`
+   - `get:actor-detail/:id`
+   - `get:actors`
+   - `post:actor`
+   - `patch:actor`
+   - `delete:actor`
+   - `get:movie-detail/:id`
+   - `get:movies`
+   - `post:movie`
+   - `patch:movie`
+   - `delete:movie`
 6. Create new roles for:
-   - Barista
-     - can `get:drinks-detail`
-     - can `get:drinks`
-   - Manager
+   - Casting Assistant: Can view actors and movies
+     - can `get:actor-detail/:id`
+     - can `get:actors`
+     - can `get:movie-detail/:id`
+     - can `get:movies`
+   - Casting Director: Can view actors and movies. Can Add, Edit, Delete Actor
+     - can `get:actor-detail/:id`
+     - can `get:actors`
+     - can `get:movie-detail/:id`
+     - can `get:movies`
+     - can `post:actor`
+     - can `patch:actor`
+     - can `delete:actor`
+   - Executive Producer: Can do anything
      - can perform all actions
 7. Test your endpoints with [Postman](https://getpostman.com).
-   - Register 2 users - assign the Barista role to one and Manager role to the other.
+   - Register 3 users - assign the Casting Assistant role to one, Casting Director role to the other and Executive Producer role to the other.
    - Sign into each account and make note of the JWT.
-   - Import the postman collection `./starter_code/backend/udacity-fsnd-udaspicelatte.postman_collection.json`
+   - Import the postman collection `./postman/udacity.postman_collection.json`
+   - Edit variables in the postman collection:
+     - value of url and token ./postman/variable.png
 
 ### Implement The Server
 
-### Random notes
+### Test notes
+
+Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.
+
+To deploy the tests, run
+
+#### Migration and Insert dummy data into databases
+
+```bash
+dropdb casting_agency_test
+createdb casting_agency_test
+export FLASK_APP=api.py
+flask db init
+flask db migrate
+flask db upgrade
+flask shell
+from databases.helper import UserHelper
+UserHelper.add_dummy_actor_data()
+UserHelper.add_dummy_movie_data()
+exit()
+```
+
+```bash
+python test_api.py
+```
+
+1. Migration and Insert dummy data into databases
+2. frontend url: [https://casting-agency-frontend-4j8j.onrender.com](https://casting-agency-frontend-4j8j.onrender.com)
+3. backend url: [https://coffee-shop-backend-5ei5.onrender.com](https://coffee-shop-backend-5ei5.onrender.com)

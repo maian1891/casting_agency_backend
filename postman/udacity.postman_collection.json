@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "44f0005d-a666-4a91-ae52-01e3986f4fd4",
+		"name": "udacity",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26613132"
+	},
+	"item": [
+		{
+			"name": "get actors",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/actors",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get actor by id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/actor-detail/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor-detail",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create actor",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"test4\",\n    \"age\": 10,\n    \"gender\": \"male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/actor",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update actor",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"name\": \"test4\",\n    \"age\": 10,\n    \"gender\": \"male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/actor",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete actor",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/actor/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get movies",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/actors",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get movie by id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/actor-detail/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor-detail",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create movie",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"test4\",\n    \"age\": 10,\n    \"gender\": \"male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/actor",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update movie",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"name\": \"test4\",\n    \"age\": 10,\n    \"gender\": \"male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/actor",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete movie",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/movie/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"movie",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

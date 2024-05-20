@@ -1,12 +1,12 @@
+from api import create_app
 import os
 import unittest
 import json
-import requests
-from flask_sqlalchemy import SQLAlchemy
-
-from api import create_app
-from models.models import setup_db
-
+from auth.auth import AuthError
+        
+assistant_token = os.environ['ASSISTANT_TOKEN']
+director_token = os.environ['DIRECTOR_TOKEN']
+producer_token = os.environ['PRODUCER_TOKEN']
 
 class ApiTestCase(unittest.TestCase):
     """This class represents the casting agency test case"""
@@ -14,170 +14,264 @@ class ApiTestCase(unittest.TestCase):
     def setUp(self):
         """Define test variables and initialize app."""
         self.database_path = os.environ['DATABASE_TEST_PATH']
+
         self.app = create_app(self.database_path)
         self.client = self.app.test_client
-        # setup_db(self.app, self.database_path)
-
-        # binds the app to the current context
-        # with self.app.app_context():
-        #     self.db.init_app(self.app)
-        #     # create all tables
-        #     self.db.create_all()
     
     def tearDown(self):
         """Executed after reach test"""
         pass
-
-
-    testingUsers = {
-        'testingUser2@funnymail.com': 'BuQ3tUS3 :jbFAL',
-        'testingUser3w@funnymail.com': 'y(1726854(b(-KY'
-        }
     
-    # def getUserToken(user_name):
-    # # client id and secret come from LogIn (Test Client)! which has password enabled under "Client > Advanced > Grant Types > Tick Password"
-    #     url = 'https://YOUR_AUTH0_DOMAIN/oauth/token' 
-    #     headers = {'content-type': 'application/json'}
-    #     password = testingUsers[user_name]
-    #     parameter = { "client_id":"Jfjrl12w55uqcJswWmMhSm5IG2Qov8w2e", 
-    #                 "client_secret": "3E5ZnqLFbPUppBLQiGDjB0H2GtXaLyaD26sdk2HmHrBXQaDYE453UCUoUHmt5nWWh",
-    #                 "audience": 'AUTH0_AUDIENCE',
-    #                 "grant_type": "password",
-    #                 "username": userName,
-    #                 "password": password, "scope": "openid" } 
-    #     # do the equivalent of a CURL request from https://auth0.com/docs/quickstart/backend/python/02-using#obtaining-an-access-token-for-testing
-    #     responseDICT = json.loads(requests.post(url, json=parameter, headers=headers).text)
-    #     return responseDICT['access_token']
-
-    # @memoize # memoize code from: https://stackoverflow.com/a/815160
-    # def getUserTokenHeaders(userName='testingUser2@funnymail.com'):
-    #     return { 'authorization': "Bearer " + getUserToken(userName)}     
+    def getUserTokenHeaders(self, token=''):
+        return { 'authorization': "Bearer " + token}     
 
     """
     Write at least one test for each test for successful operation and for expected errors.
     """
-    # GET /actors
-    def test_get_actors(self):
-        res = self.client().get("/actors")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data["success"])
-        self.assertEqual(data["actors"], {
-            "1": "Science",
-            "2": "Art",
-        })
-
-    def test_get_actors_fail(self):
-        res = self.client().get("/actor-detail/100")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertFalse(data["success"])
-        self.assertEqual(data["message"], "Not found")
-
-    # GET /actors
-    def test_get_actors(self):
-        res = self.client().get("/actors")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data["success"])
-        self.assertEqual(data["actors"],
-            [])
-        self.assertEqual(len(data["actors"]), 10)
-        self.assertEqual(data["movies"], {
-            '1': 'Science', '2': 'Art', '3': 'Geography', '4': 'History', '5': 'Entertainment', '6': 'Sports'
-        })
-
-    def test_get_actors_by_page(self):
-        res = self.client().get("/actors?page=2")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data["success"])
-        self.assertEqual(data["actors"], {
-            '1': 'Science', '2': 'Art', '3': 'Geography', '4': 'History', '5': 'Entertainment', '6': 'Sports'
-        })
-
-    def test_get_actors_fail(self):
-        res = self.client().get("/actors?page=100")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertFalse(data["success"])
-        self.assertEqual(data["message"], "Not found")
-
-    # DELETE /actor/<int:question_id>
-    def test_delete_actor(self):
-        res = self.client().delete("/actor/10")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data["success"])
-
-    def test_delete_actor_fail(self):
-        res = self.client().delete("/actor/100")
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertFalse(data["success"])
-        self.assertEqual(data["message"], "Unprocessable entity")
-
-
-    # POST /actor
-    def test_post_actor(self):
-        res = self.client().post("/actor", json={
-            "name": "Leonardo DiCaprio",
-            "age": 49,
-            "gender": "male",
-        })
-
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data["message"], "Actor successfully created")
-        self.assertTrue(data["success"])
     
-    def test_post_actor_fail(self):
+    # POST /actor
+    def test_post_actor_unauthorized(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().post("/actor", json={
+            "name": "Tom Hanks",
+            "age": 67,
+            "gender": "male",
+        }, headers=headers)
+        data = json.loads(res.data)
+
+        self.assertRaises(AuthError)
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(data["message"], 'unauthorized')
+        self.assertFalse(data["success"])
+    
+    def test_post_actor_unprocessable_entity(self):
+        headers = self.getUserTokenHeaders(director_token)
         res = self.client().post("/actor", json={
             "name": "Leonardo DiCaprio",
             "age": 49,
             "gender": "male"
-        })
-
+        }, headers=headers)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data["success"])
-        self.assertEqual(data["message"], "Unprocessable entity")
-
-    # PATCH /actor
-    def test_patch_actor(self):
-        res = self.client().patch("/actor", json={
-            "id": 2,
-            "name": "Angelina Jolie",
-            "age": 48,
-            "gender": "female",
-        })
+        self.assertEqual(data["message"], "unprocessable")
+        
+    def test_post_actor_success(self):
+        headers = self.getUserTokenHeaders(director_token)
+        res = self.client().post("/actor", json={
+            "name": "Tom Hanks",
+            "age": 67,
+            "gender": "male",
+        }, headers=headers)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data["success"])
 
-    def test_patch_actor_fail(self):
+    # PATCH /actor
+    def test_patch_actor_success(self):
+        headers = self.getUserTokenHeaders(director_token)
         res = self.client().patch("/actor", json={
-            "id": 200,
-            "name": "Angelina Jolie",
-            "age": 48,
-            "gender": "female",
-        })
+            "id": 1,
+            "name": "Leonardo DiCaprio",
+            "age": 49,
+            "gender": "male",
+        }, headers=headers)
+        data = json.loads(res.data)
+        print(data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+
+    def test_patch_actor_unprocessable(self):
+        headers = self.getUserTokenHeaders(director_token)
+        res = self.client().patch("/actor", json={
+            "id": 1,
+            "name": "Tom Cruise",
+            "age": 61,
+            "gender": "male",
+        }, headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data["success"])
+        self.assertEqual(data["message"], "unprocessable")
+
+    # DELETE /actor/<int:question_id>
+    def test_delete_actor_unauthorized(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().delete("/actor/1", headers=headers)
+        data = json.loads(res.data)
+
+        self.assertRaises(AuthError)
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(data["message"], 'unauthorized')
+        self.assertFalse(data["success"])
+
+    def test_delete_actor_resource_not_found(self):
+        headers = self.getUserTokenHeaders(director_token)
+        res = self.client().delete("/actor/100", headers=headers)
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data["success"])
+        self.assertEqual(data["message"], "resource not found")
+
+    def test_delete_actor_success(self):
+        headers = self.getUserTokenHeaders(director_token)
+        res = self.client().delete("/actor/3", headers=headers)
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["deleted"], 3)
+
+    # GET /actors
+    def test_get_actors(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().get("/actors",headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"],
+            [{'age': 49, 'gender': 'male', 'id': 1, 'name': 'Leonardo DiCaprio'}, 
+             {'age': 61, 'gender': 'male', 'id': 2, 'name': 'Tom Cruise'}])
+    
+    # GET /actor-detail/:id
+    def test_get_actor_detail_success(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().get("/actor-detail/1", headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"],
+            {'age': 49, 'gender': 'male', 'id': 1, 'movies': [], 'name': 'Leonardo DiCaprio'})
+    
+    def test_get_actor_detail_not_found(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().get("/actor-detail/100", headers=headers)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data["success"])
-        self.assertEqual(data["message"], "Not found")
 
+    # GET /movies
+    def test_get_movies_success(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().get("/movies",headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"],
+            [{'id': 1, 'releaseDate': 'Fri, 19 Dec 1997 00:00:00 GMT', 'title': 'Titanic'},
+            {'id': 2, 'releaseDate': 'Wed, 22 May 1996 00:00:00 GMT', 'title': 'Mission: Impossible'}])
+    
+    # GET /movie-detail/:id
+    def test_get_movie_detail_success(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().get("/movie-detail/1", headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"],
+           {'actors': [], 'id': 1, 'releaseDate': 'Fri, 19 Dec 1997 00:00:00 GMT', 'title': 'Titanic'})
+    
+    def test_get_movie_detail_fail(self):
+        headers = self.getUserTokenHeaders(assistant_token)
+        res = self.client().get("/movie-detail/100", headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data["success"])
+
+    # POST /movie
+    def test_post_movie_unauthorized(self):
+        headers = self.getUserTokenHeaders(director_token)
+        res = self.client().post("/movie", json={
+            "title": "Toy Story",
+            "releaseDate": 'Wed, 22 Nov 1995 00:00:00 GMT',
+        }, headers=headers)
+        data = json.loads(res.data)
+
+        self.assertRaises(AuthError)
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(data["message"], 'unauthorized')
+        self.assertFalse(data["success"])
+        
+    def test_post_movie_success(self):
+        headers = self.getUserTokenHeaders(producer_token)
+        res = self.client().post("/movie", json={
+            "title": "Toy Story",
+            "releaseDate": 'Wed, 22 Nov 1995 00:00:00 GMT'
+        }, headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+
+    # PATCH /movie
+    def test_patch_movie_success(self):
+        headers = self.getUserTokenHeaders(producer_token)
+        res = self.client().patch("/movie", json={
+            "id": 1,
+            "title": "Titanic 1",
+            "releaseDate": 'Fri, 19 Dec 1997 00:00:00 GMT'
+        }, headers=headers)
+        data = json.loads(res.data)
+        print(data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+
+    def test_patch_movie_unprocessable(self):
+        headers = self.getUserTokenHeaders(producer_token)
+        res = self.client().patch("/movie", json={
+            "id": 1,
+            "releaseDate": "Wed, 22 May 1996 00:00:00 GMT",
+            "title": "Mission: Impossible"
+        }, headers=headers)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data["success"])
+        self.assertEqual(data["message"], "unprocessable")
+    
+    
+    # DELETE /movie/<int:question_id>
+    def test_delete_movie_unauthorized(self):
+        headers = self.getUserTokenHeaders(director_token)
+        res = self.client().delete("/movie/1", headers=headers)
+        data = json.loads(res.data)
+
+        self.assertRaises(AuthError)
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(data["message"], 'unauthorized')
+        self.assertFalse(data["success"])
+
+    def test_delete_movie_resource_not_found(self):
+        headers = self.getUserTokenHeaders(producer_token)
+        res = self.client().delete("/movie/100", headers=headers)
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data["success"])
+        self.assertEqual(data["message"], "resource not found")
+
+    def test_delete_movie_success(self):
+        headers = self.getUserTokenHeaders(producer_token)
+        res = self.client().delete("/movie/3", headers=headers)
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["deleted"], 3)
+
+    
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
